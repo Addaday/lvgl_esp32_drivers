@@ -960,6 +960,20 @@ menu "LVGL TFT Display controller"
             prompt "PWM control"
             help
                 Display backlight is controlled by pulse-width modulation, allowing brightness settings.
+        
+        config LV_DISP_BACKLIGHT_PWM_CHANNEL
+            int "PWM channel" if LV_DISP_BACKLIGHT_PWM
+            default 0
+            range 0 3
+            help
+                The channel number for controlling the brightness of the display backlight.
+
+        config LV_DISP_BACKLIGHT_PWM_BRIGHTNESS_PERCENT
+            int "Brightness display backlight" if LV_DISP_BACKLIGHT_PWM
+            default 100
+            range 0 100
+            help
+                Display brightness as a percentage.
 
     endchoice
 

@@ -17,21 +17,23 @@ typedef struct {
     int index;        // Either GPIO or LEDC channel
 } disp_backlight_t;
 
+disp_backlight_t *bckl_dev = NULL;
+
 static const char *TAG = "disp_backlight";
 
-disp_backlight_h disp_backlight_new(const disp_backlight_config_t *config)
+void disp_backlight_new(const disp_backlight_config_t *config)
 {
     // Check input parameters
     if (config == NULL)
         return NULL;
     if (!GPIO_IS_VALID_OUTPUT_GPIO(config->gpio_num)) {
         ESP_LOGW(TAG, "Invalid GPIO number");
-        return NULL;
+        return;
     }
-    disp_backlight_t *bckl_dev = calloc(1, sizeof(disp_backlight_t));
+    bckl_dev = calloc(1, sizeof(disp_backlight_t));
     if (bckl_dev == NULL){
         ESP_LOGW(TAG, "Not enough memory");
-        return NULL;
+        return;
     }
 
     if (config->pwm_control){
@@ -66,21 +68,18 @@ disp_backlight_h disp_backlight_new(const disp_backlight_config_t *config)
         ESP_ERROR_CHECK(gpio_set_direction(config->gpio_num, GPIO_MODE_OUTPUT));
         gpio_matrix_out(config->gpio_num, SIG_GPIO_OUT_IDX, config->output_invert, false);
     }
-
-    return (disp_backlight_h)bckl_dev;
 }
 
-void disp_backlight_set(disp_backlight_h bckl, int brightness_percent)
+void disp_backlight_set(int brightness_percent)
 {
     // Check input paramters
-    if (bckl == NULL)
+    if (bckl_dev == NULL)
         return;
     if (brightness_percent > 100)
         brightness_percent = 100;
     if (brightness_percent < 0)
         brightness_percent = 0;
 
-    disp_backlight_t *bckl_dev = (disp_backlight_t *) bckl;
     ESP_LOGI(TAG, "Setting LCD backlight: %d%%", brightness_percent);
 
     if (bckl_dev->pwm_control) {
@@ -92,16 +91,15 @@ void disp_backlight_set(disp_backlight_h bckl, int brightness_percent)
     }
 }
 
-void disp_backlight_delete(disp_backlight_h bckl)
+void disp_backlight_delete(void)
 {
-    if (bckl == NULL)
+    if (bckl_dev == NULL)
         return;
 
-    disp_backlight_t *bckl_dev = (disp_backlight_t *) bckl;
     if (bckl_dev->pwm_control) {
         ledc_stop(LEDC_LOW_SPEED_MODE, bckl_dev->index, 0);
     } else {
         gpio_reset_pin(bckl_dev->index);
     }
-    free (bckl);
+    free (bckl_dev);
 }

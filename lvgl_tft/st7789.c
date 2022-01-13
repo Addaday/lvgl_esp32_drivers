@@ -82,6 +82,10 @@ void st7789_init(void)
         {0xB6, {0x0A, 0x82, 0x27, 0x00}, 4},
         {ST7789_SLPOUT, {0}, 0x80},
         {ST7789_DISPON, {0}, 0x80},
+        {ST7789_DISPON, {0}, 0x80}, //existing line
+        #if LV_COLOR_16_SWAP == 0 // Test: enable little endian.
+        {ST7789_RAMCTRL, {0, 8}, 2}, // Test: enable little endian.
+        #endif //DL: enable little endian.
         {0, {0}, 0xff},
     };
 
