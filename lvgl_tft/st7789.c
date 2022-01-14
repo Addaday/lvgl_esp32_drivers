@@ -116,7 +116,7 @@ void st7789_init(void)
         st7789_send_cmd(st7789_init_cmds[cmd].cmd);
         st7789_send_data(st7789_init_cmds[cmd].data, st7789_init_cmds[cmd].databytes&0x1F);
         if (st7789_init_cmds[cmd].databytes & 0x80) {
-                vTaskDelay(100 / portTICK_RATE_MS);
+                vTaskDelay(10 / portTICK_RATE_MS);
         }
         cmd++;
     }
